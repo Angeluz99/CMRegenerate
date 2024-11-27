@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .drop-zone {
+        width: 300px;
+        height: 300px;
+        border: 2px dashed #ccc;
+        margin: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #aaa;
+      }
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Drag and Drop Image</h1>
+    <div class="container">
+      <div class="drop-zone" data-key="image1">Drop an image here (1)</div>
+      <div class="drop-zone" data-key="image2">Drop an image here (2)</div>
+      <div class="drop-zone" data-key="image3">Drop an image here (3)</div>
+      <div class="drop-zone" data-key="image4">Drop an image here (4)</div>
+    </div>
+    <script>
+      const dropZones = document.querySelectorAll(".drop-zone");
+
+      // Load images for all drop zones
+      function loadImages() {
+        dropZones.forEach((zone) => {
+          const key = zone.getAttribute("data-key");
+          const savedImage = localStorage.getItem(key);
+          if (savedImage) {
+            const img = document.createElement("img");
+            img.src = savedImage;
+            zone.innerHTML = ""; // Clear the text inside the div
+            zone.appendChild(img);
+          }
+        });
+      }
+
+      // Handle drag and drop for each drop zone
+      dropZones.forEach((zone) => {
+        zone.addEventListener("dragover", (e) => {
+          e.preventDefault(); // Prevent default behavior to allow drop
+          zone.style.borderColor = "blue";
+        });
+
+        zone.addEventListener("dragleave", () => {
+          zone.style.borderColor = "#ccc";
+        });
+
+        zone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          zone.style.borderColor = "#ccc";
+
+          const file = e.dataTransfer.files[0];
+          if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const img = document.createElement("img");
+              img.src = event.target.result;
+              zone.innerHTML = ""; // Clear the text inside the div
+              zone.appendChild(img);
+
+              // Save the image data to localStorage with the key for this zone
+              const key = zone.getAttribute("data-key");
+              localStorage.setItem(key, event.target.result);
+            };
+            reader.readAsDataURL(file);
+          } else {
+            alert("Please drop a valid image file.");
+          }
+        });
+      });
+
+      // Load images on page load
+      loadImages();
+    </script>
+  </body>
+</html>
